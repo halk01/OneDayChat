@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAnalytics mFirebaseAnalytics;
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
-    private FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>
+    private FirebaseRecyclerAdapter<OneDayMessage, MessageViewHolder>
             mFirebaseAdapter;
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
@@ -91,14 +92,14 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_INVITE = 1;
     private static final int REQUEST_IMAGE = 2;
     private static final String LOADING_IMAGE_URL = "https://www.google.com/images/spin-32.gif";
-    public static final int DEFAULT_MSG_LENGTH_LIMIT = 10;
+    public static final int DEFAULT_MSG_LENGTH_LIMIT = 50;
     public static final String ANONYMOUS = "anonymous";
     private static final String MESSAGE_SENT_EVENT = "message_sent";
     private String mUsername;
     private String mPhotoUrl;
     private SharedPreferences mSharedPreferences;
     private GoogleApiClient mGoogleApiClient;
-    private static final String MESSAGE_URL = "http://friendlychat.firebase.google.com/message/";
+    private static final String MESSAGE_URL = "https://onedaychat-39dfa.firebaseio.com/";
 
     private Button mSendButton;
     private RecyclerView mMessageRecyclerView;
@@ -107,14 +108,16 @@ public class MainActivity extends AppCompatActivity
     private EditText mMessageEditText;
     private ImageView mAddMessageImageView;
 
-    // Firebase instance variables
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("ONEDAYCHAT");
+        setSupportActionBar(toolbar);
+
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        // Set default username is anonymous.
         mUsername = ANONYMOUS;
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -123,20 +126,20 @@ public class MainActivity extends AppCompatActivity
                 .addApi(AppInvite.API)
                 .build();
 
-        // Initialize ProgressBar and RecyclerView.
+
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         mMessageRecyclerView = (RecyclerView) findViewById(R.id.messageRecyclerView);
+
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
-        mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
+        mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         mProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
         mMessageEditText = (EditText) findViewById(R.id.messageEditText);
-        mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mSharedPreferences
-                .getInt(CodelabPreferences.FRIENDLY_MSG_LENGTH, DEFAULT_MSG_LENGTH_LIMIT))});
         mMessageEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -160,13 +163,13 @@ public class MainActivity extends AppCompatActivity
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FriendlyMessage friendlyMessage = new
-                        FriendlyMessage(mMessageEditText.getText().toString(),
+                OneDayMessage oneDayMessage = new
+                        OneDayMessage(mMessageEditText.getText().toString(),
                         mUsername,
                         mPhotoUrl,
                         null /* no image */);
                 mFirebaseDatabaseReference.child(MESSAGES_CHILD)
-                        .push().setValue(friendlyMessage);
+                        .push().setValue(oneDayMessage);
                 mMessageEditText.setText("");
             }
         });
@@ -185,7 +188,6 @@ public class MainActivity extends AppCompatActivity
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, SignInActivity.class));
             finish();
             return;
@@ -197,37 +199,35 @@ public class MainActivity extends AppCompatActivity
         }
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<FriendlyMessage,
+        mFirebaseAdapter = new FirebaseRecyclerAdapter<OneDayMessage,
                 MessageViewHolder>(
-                FriendlyMessage.class,
+                OneDayMessage.class,
                 R.layout.item_message,
                 MessageViewHolder.class,
                 mFirebaseDatabaseReference.child(MESSAGES_CHILD)) {
 
             @Override
-            protected FriendlyMessage parseSnapshot(DataSnapshot snapshot) {
-                FriendlyMessage friendlyMessage = super.parseSnapshot(snapshot);
-                if (friendlyMessage != null) {
-                    friendlyMessage.setId(snapshot.getKey());
+            protected OneDayMessage parseSnapshot(DataSnapshot snapshot) {
+                OneDayMessage oneDayMessage = super.parseSnapshot(snapshot);
+                if (oneDayMessage != null) {
+                    oneDayMessage.setId(snapshot.getKey());
                 }
-                return friendlyMessage;
+                return oneDayMessage;
             }
 
             @Override
             protected void populateViewHolder(final MessageViewHolder viewHolder,
-                                              FriendlyMessage friendlyMessage, int position) {
+                                              OneDayMessage oneDayMessage, int position) {
                 mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                if (friendlyMessage.getText() != null) {
-                    viewHolder.messageTextView.setText(friendlyMessage.getText());
+                if (oneDayMessage.getText() != null) {
+                    viewHolder.messageTextView.setText(oneDayMessage.getText());
                     viewHolder.messageTextView.setVisibility(TextView.VISIBLE);
                     viewHolder.messageImageView.setVisibility(ImageView.GONE);
                     FirebaseAppIndex.getInstance()
-                            .update(getMessageIndexable(friendlyMessage));
-
-                    FirebaseUserActions.getInstance().end(getMessageViewAction(friendlyMessage));
-
+                            .update(getMessageIndexable(oneDayMessage));
+                    FirebaseUserActions.getInstance().end(getMessageViewAction(oneDayMessage));
                 } else {
-                    String imageUrl = friendlyMessage.getImageUrl();
+                    String imageUrl = oneDayMessage.getImageUrl();
                     if (imageUrl.startsWith("gs://")) {
                         StorageReference storageReference = FirebaseStorage.getInstance()
                                 .getReferenceFromUrl(imageUrl);
@@ -248,24 +248,22 @@ public class MainActivity extends AppCompatActivity
                                 });
                     } else {
                         Glide.with(viewHolder.messageImageView.getContext())
-                                .load(friendlyMessage.getImageUrl())
+                                .load(oneDayMessage.getImageUrl())
                                 .into(viewHolder.messageImageView);
                     }
                     viewHolder.messageImageView.setVisibility(ImageView.VISIBLE);
                     viewHolder.messageTextView.setVisibility(TextView.GONE);
                 }
 
-
-                viewHolder.messengerTextView.setText(friendlyMessage.getName());
-                if (friendlyMessage.getPhotoUrl() == null) {
+                viewHolder.messengerTextView.setText(oneDayMessage.getName());
+                if (oneDayMessage.getPhotoUrl() == null) {
                     viewHolder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(MainActivity.this,
                             R.drawable.ic_account_circle_black_36dp));
                 } else {
                     Glide.with(MainActivity.this)
-                            .load(friendlyMessage.getPhotoUrl())
+                            .load(oneDayMessage.getPhotoUrl())
                             .into(viewHolder.messengerImageView);
                 }
-
             }
         };
 
@@ -273,16 +271,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
-                int friendlyMessageCount = mFirebaseAdapter.getItemCount();
+                int oneDayMessageCount = mFirebaseAdapter.getItemCount();
                 int lastVisiblePosition =
                         mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
                 if (lastVisiblePosition == -1 ||
-                        (positionStart >= (friendlyMessageCount - 1) &&
+                        (positionStart >= (oneDayMessageCount - 1) &&
                                 lastVisiblePosition == (positionStart - 1))) {
                     mMessageRecyclerView.scrollToPosition(positionStart);
                 }
             }
-
         });
 
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -296,15 +293,11 @@ public class MainActivity extends AppCompatActivity
                         .build();
 
         Map<String, Object> defaultConfigMap = new HashMap<>();
-        defaultConfigMap.put("friendly_msg_length", 10L);
+        defaultConfigMap.put("one_day_msg_length", 10L);
 
         mFirebaseRemoteConfig.setConfigSettings(firebaseRemoteConfigSettings);
         mFirebaseRemoteConfig.setDefaults(defaultConfigMap);
-
-        fetchConfig();
-
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -317,7 +310,7 @@ public class MainActivity extends AppCompatActivity
                     final Uri uri = data.getData();
                     Log.d(TAG, "Uri: " + uri.toString());
 
-                    FriendlyMessage tempMessage = new FriendlyMessage(null, mUsername, mPhotoUrl,
+                    OneDayMessage tempMessage = new OneDayMessage(null, mUsername, mPhotoUrl,
                             LOADING_IMAGE_URL);
                     mFirebaseDatabaseReference.child(MESSAGES_CHILD).push()
                             .setValue(tempMessage, new DatabaseReference.CompletionListener() {
@@ -365,12 +358,12 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if (task.isSuccessful()) {
-                            FriendlyMessage friendlyMessage =
-                                    new FriendlyMessage(null, mUsername, mPhotoUrl,
+                            OneDayMessage oneDayMessage =
+                                    new OneDayMessage(null, mUsername, mPhotoUrl,
                                             task. getResult().getMetadata().getDownloadUrl()
                                                     .toString());
                             mFirebaseDatabaseReference.child(MESSAGES_CHILD).child(key)
-                                    .setValue(friendlyMessage);
+                                    .setValue(oneDayMessage);
                         } else {
                             Log.w(TAG, "Image upload task was not successful.",
                                     task.getException());
@@ -382,7 +375,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in.
         // TODO: Add code to check if user is signed in.
     }
 
@@ -414,8 +406,8 @@ public class MainActivity extends AppCompatActivity
             case R.id.invite_menu:
                 sendInvitation();
                 return true;
-            case R.id.fresh_config_menu:
-                fetchConfig();
+            case R.id.License:
+                License();
                 return true;
             case R.id.sign_out_menu:
                 mFirebaseAuth.signOut();
@@ -430,25 +422,23 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        // An unresolvable error has occurred and Google APIs (including Sign-In) will not
-        // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 
-    private Indexable getMessageIndexable(FriendlyMessage friendlyMessage) {
+    private Indexable getMessageIndexable(OneDayMessage oneDayMessage) {
         PersonBuilder sender = Indexables.personBuilder()
-                .setIsSelf(mUsername.equals(friendlyMessage.getName()))
-                .setName(friendlyMessage.getName())
-                .setUrl(MESSAGE_URL.concat(friendlyMessage.getId() + "/sender"));
+                .setIsSelf(mUsername.equals(oneDayMessage.getName()))
+                .setName(oneDayMessage.getName())
+                .setUrl(MESSAGE_URL.concat(oneDayMessage.getId() + "/sender"));
 
         PersonBuilder recipient = Indexables.personBuilder()
                 .setName(mUsername)
-                .setUrl(MESSAGE_URL.concat(friendlyMessage.getId() + "/recipient"));
+                .setUrl(MESSAGE_URL.concat(oneDayMessage.getId() + "/recipient"));
 
         Indexable messageToIndex = Indexables.messageBuilder()
-                .setName(friendlyMessage.getText())
-                .setUrl(MESSAGE_URL.concat(friendlyMessage.getId()))
+                .setName(oneDayMessage.getText())
+                .setUrl(MESSAGE_URL.concat(oneDayMessage.getId()))
                 .setSender(sender)
                 .setRecipient(recipient)
                 .build();
@@ -456,43 +446,15 @@ public class MainActivity extends AppCompatActivity
         return messageToIndex;
     }
 
-    private Action getMessageViewAction(FriendlyMessage friendlyMessage) {
+    private Action getMessageViewAction(OneDayMessage oneDayMessage) {
         return new Action.Builder(Action.Builder.VIEW_ACTION)
-                .setObject(friendlyMessage.getName(), MESSAGE_URL.concat(friendlyMessage.getId()))
+                .setObject(oneDayMessage.getName(), MESSAGE_URL.concat(oneDayMessage.getId()))
                 .setMetadata(new Action.Metadata.Builder().setUpload(false))
                 .build();
     }
 
-    public void fetchConfig() {
-        long cacheExpiration = 3600;
-        if (mFirebaseRemoteConfig.getInfo().getConfigSettings()
-                .isDeveloperModeEnabled()) {
-            cacheExpiration = 0;
-        }
-        mFirebaseRemoteConfig.fetch(cacheExpiration)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        mFirebaseRemoteConfig.activateFetched();
-                        applyRetrievedLengthLimit();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error fetching config: " +
-                                e.getMessage());
-                        applyRetrievedLengthLimit();
-                    }
-                });
-    }
-
-    private void applyRetrievedLengthLimit() {
-        Long friendly_msg_length =
-                mFirebaseRemoteConfig.getLong("friendly_msg_length");
-        mMessageEditText.setFilters(new InputFilter[]{new
-                InputFilter.LengthFilter(friendly_msg_length.intValue())});
-        Log.d(TAG, "FML is: " + friendly_msg_length);
+    public void License() {
+        Toast.makeText(MainActivity.this, "今考えてます" ,Toast.LENGTH_SHORT).show();
     }
 
     private void sendInvitation() {

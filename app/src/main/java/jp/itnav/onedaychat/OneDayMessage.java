@@ -15,7 +15,7 @@
  */
 package jp.itnav.onedaychat;
 
-public class FriendlyMessage {
+public class OneDayMessage {
 
     private String id;
     private String text;
@@ -23,10 +23,10 @@ public class FriendlyMessage {
     private String photoUrl;
     private String imageUrl;
 
-    public FriendlyMessage() {
+    public OneDayMessage() {
     }
 
-    public FriendlyMessage(String text, String name, String photoUrl, String imageUrl) {
+    public OneDayMessage(String text, String name, String photoUrl, String imageUrl) {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;
