@@ -10,6 +10,10 @@
         android:title="@string/License"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/TermsService"
+        android:title="@string/Privacy"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/invite_menu"
         android:title="@string/invite_menu_label"
         app:showAsAction="never"/>
