@@ -55,6 +55,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,6 +99,7 @@ public class MainActivity extends AppCompatActivity
     private static final String MESSAGE_SENT_EVENT = "message_sent";
     private String mUsername;
     private String mPhotoUrl;
+    private final String mDate = getNowDate();
     private SharedPreferences mSharedPreferences;
     private GoogleApiClient mGoogleApiClient;
     private static final String MESSAGE_URL = "https://onedaychat-39dfa.firebaseio.com/";
@@ -166,6 +170,7 @@ public class MainActivity extends AppCompatActivity
                         OneDayMessage(mMessageEditText.getText().toString(),
                         mUsername,
                         mPhotoUrl,
+                        mDate,
                         null /* no image */);
                 mFirebaseDatabaseReference.child(MESSAGES_CHILD)
                         .push().setValue(oneDayMessage);
@@ -309,7 +314,7 @@ public class MainActivity extends AppCompatActivity
                     final Uri uri = data.getData();
                     Log.d(TAG, "Uri: " + uri.toString());
 
-                    OneDayMessage tempMessage = new OneDayMessage(null, mUsername, mPhotoUrl,
+                    OneDayMessage tempMessage = new OneDayMessage(null, mUsername, mDate, mPhotoUrl,
                             LOADING_IMAGE_URL);
                     mFirebaseDatabaseReference.child(MESSAGES_CHILD).push()
                             .setValue(tempMessage, new DatabaseReference.CompletionListener() {
@@ -358,7 +363,7 @@ public class MainActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if (task.isSuccessful()) {
                             OneDayMessage oneDayMessage =
-                                    new OneDayMessage(null, mUsername, mPhotoUrl,
+                                    new OneDayMessage(null, mUsername, mDate, mPhotoUrl,
                                             task. getResult().getMetadata().getDownloadUrl()
                                                     .toString());
                             mFirebaseDatabaseReference.child(MESSAGES_CHILD).child(key)
@@ -459,6 +464,13 @@ public class MainActivity extends AppCompatActivity
 
         }
     public void License() {
+    }
+
+
+    public static String getNowDate(){
+        final DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        final Date date = new Date(System.currentTimeMillis());
+        return df.format(date);
     }
 
     private void sendInvitation() {

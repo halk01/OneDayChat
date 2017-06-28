@@ -19,6 +19,7 @@ public class OneDayMessage {
 
     private String id;
     private String text;
+    private String date;
     private String name;
     private String photoUrl;
     private String imageUrl;
@@ -26,9 +27,10 @@ public class OneDayMessage {
     public OneDayMessage() {
     }
 
-    public OneDayMessage(String text, String name, String photoUrl, String imageUrl) {
+    public OneDayMessage(String text, String name, String date, String photoUrl, String imageUrl) {
         this.text = text;
         this.name = name;
+        this.date = date;
         this.photoUrl = photoUrl;
         this.imageUrl = imageUrl;
     }
@@ -59,6 +61,14 @@ public class OneDayMessage {
 
     public String getText() {
         return text;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public void setPhotoUrl(String photoUrl) {
