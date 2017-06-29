@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "132033368975-98o4fkk9gc0nihkr9op16mr3r9a6kpdb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "jp.itnav.onedaychat",
+            "certificate_hash": "4e6976cf8dc10f38a66fae62e74f19138f4d834f"
+          }
+        },
+        {
+          "client_id": "132033368975-15hasudrj9p65ksm4dltfenmiebmlnh8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "jp.itnav.onedaychat",
+            "certificate_hash": "7e007cb43de32a7e4e9be3dde0c1ab4889dc8da5"
+          }
+        },
+        {
           "client_id": "132033368975-mgicmd6n8jcd8fq1aabljini1ul9qiuk.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +45,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "132033368975-mgicmd6n8jcd8fq1aabljini1ul9qiuk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
