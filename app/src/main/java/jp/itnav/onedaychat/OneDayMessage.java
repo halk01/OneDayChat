@@ -19,18 +19,22 @@ public class OneDayMessage {
 
     private String id;
     private String text;
+    private String date;
     private String name;
+    private String height;
     private String photoUrl;
     private String imageUrl;
 
     public OneDayMessage() {
     }
 
-    public OneDayMessage(String text, String name, String photoUrl, String imageUrl) {
+    public OneDayMessage(String text, String name, String date, String photoUrl, String imageUrl, String height) {
         this.text = text;
         this.name = name;
+        this.date = date;
         this.photoUrl = photoUrl;
         this.imageUrl = imageUrl;
+        this.height = height;
     }
 
     public String getId() {
@@ -59,6 +63,22 @@ public class OneDayMessage {
 
     public String getText() {
         return text;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getHeight(){
+        return height;
+    }
+
+    public void setHeight(String height){
+        this.height = height;
     }
 
     public void setPhotoUrl(String photoUrl) {
