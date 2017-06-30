@@ -49,7 +49,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.google.firebase.storage.FirebaseStorage;
@@ -101,8 +100,6 @@ public class MainActivity extends AppCompatActivity
     private static final String MESSAGE_SENT_EVENT = "message_sent";
     private String mUsername;
     private String mPhotoUrl;
-    private String mHeight;
-    private String mDate;
     private SharedPreferences mSharedPreferences;
     private GoogleApiClient mGoogleApiClient;
     private static final String MESSAGE_URL = "https://onedaychat-39dfa.firebaseio.com/";
@@ -112,7 +109,6 @@ public class MainActivity extends AppCompatActivity
     private LinearLayoutManager mLinearLayoutManager;
     private ProgressBar mProgressBar;
     private EditText mMessageEditText;
-    private ImageView mAddMessageImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,23 +170,11 @@ public class MainActivity extends AppCompatActivity
                         OneDayMessage(mMessageEditText.getText().toString(),
                         mUsername,
                         getNowDate(),
-                        mHeight,
                         mPhotoUrl,
                         null /* no image */);
                 mFirebaseDatabaseReference.child(MESSAGES_CHILD)
                         .push().setValue(oneDayMessage);
                 mMessageEditText.setText("");
-            }
-        });
-
-        mAddMessageImageView = (ImageView) findViewById(R.id.addMessageImageView);
-        mAddMessageImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_IMAGE);
             }
         });
 
@@ -212,9 +196,9 @@ public class MainActivity extends AppCompatActivity
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
-        calendar.set(Calendar.HOUR_OF_DAY, 00);
-        calendar.set(Calendar.MINUTE, 00);
-        calendar.set(Calendar.SECOND, 00);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
         Date startDate = calendar.getTime();
         long start = startDate.getTime();
         System.out.println(start);
@@ -344,29 +328,6 @@ public class MainActivity extends AppCompatActivity
                 if (data != null) {
                     final Uri uri = data.getData();
                     Log.d(TAG, "Uri: " + uri.toString());
-
-                    OneDayMessage tempMessage = new OneDayMessage(null, mUsername, getNowDate(), mPhotoUrl, mHeight,
-                            LOADING_IMAGE_URL);
-                    mFirebaseDatabaseReference.child(MESSAGES_CHILD).push()
-                            .setValue(tempMessage, new DatabaseReference.CompletionListener() {
-                                @Override
-                                public void onComplete(DatabaseError databaseError,
-                                                       DatabaseReference databaseReference) {
-                                    if (databaseError == null) {
-                                        String key = databaseReference.getKey();
-                                        StorageReference storageReference =
-                                                FirebaseStorage.getInstance()
-                                                        .getReference(mFirebaseUser.getUid())
-                                                        .child(key)
-                                                        .child(uri.getLastPathSegment());
-
-                                        putImageInStorage(storageReference, uri, key);
-                                    } else {
-                                        Log.w(TAG, "Unable to write message to database.",
-                                                databaseError.toException());
-                                    }
-                                }
-                            });
                 }
             }
         } else if (requestCode == REQUEST_INVITE) {
@@ -385,26 +346,6 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "Failed to send invitation.");
             }
         }
-    }
-
-    private void putImageInStorage(StorageReference storageReference, Uri uri, final String key) {
-        storageReference.putFile(uri).addOnCompleteListener(MainActivity.this,
-                new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            OneDayMessage oneDayMessage =
-                                    new OneDayMessage(null, mUsername, getNowDate(), mPhotoUrl, mHeight,
-                                            task. getResult().getMetadata().getDownloadUrl()
-                                                    .toString());
-                            mFirebaseDatabaseReference.child(MESSAGES_CHILD).child(key)
-                                    .setValue(oneDayMessage);
-                        } else {
-                            Log.w(TAG, "Image upload task was not successful.",
-                                    task.getException());
-                        }
-                    }
-                });
     }
 
     @Override
@@ -444,7 +385,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.License:
                 License();
                 return true;
-            case R.id.TermsService:
+            case R.id.Privacy:
                 Privacy();
                 return true;
             case R.id.sign_out_menu:
@@ -492,9 +433,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void Privacy() {
-
-        }
+        Intent intent = new Intent(this, PrivacyActivity.class);
+        startActivity(intent);
+    }
     public void License() {
+        Intent intent = new Intent(this, LicenseActivity.class);
+        startActivity(intent);
     }
 
 
