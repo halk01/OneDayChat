@@ -10,7 +10,7 @@
         android:title="@string/License"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/TermsService"
+        android:id="@+id/Privacy"
         android:title="@string/Privacy"
         app:showAsAction="never"/>
     <item
