@@ -18,8 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -46,21 +44,16 @@ import com.google.firebase.appindexing.builders.PersonBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -71,7 +64,6 @@ public class MainActivity extends AppCompatActivity
     private FirebaseUser mFirebaseUser;
     private FirebaseAnalytics mFirebaseAnalytics;
     private DatabaseReference mFirebaseDatabaseReference;
-    private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private FirebaseRecyclerAdapter<OneDayMessage, MessageViewHolder>
             mFirebaseAdapter;
 
@@ -304,18 +296,7 @@ public class MainActivity extends AppCompatActivity
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
 
-        mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 
-        FirebaseRemoteConfigSettings firebaseRemoteConfigSettings =
-                new FirebaseRemoteConfigSettings.Builder()
-                        .setDeveloperModeEnabled(true)
-                        .build();
-
-        Map<String, Object> defaultConfigMap = new HashMap<>();
-        defaultConfigMap.put("one_day_msg_length", 10L);
-
-        mFirebaseRemoteConfig.setConfigSettings(firebaseRemoteConfigSettings);
-        mFirebaseRemoteConfig.setDefaults(defaultConfigMap);
     }
 
     @Override
