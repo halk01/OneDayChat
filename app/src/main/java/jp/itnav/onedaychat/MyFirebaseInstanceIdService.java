@@ -26,9 +26,6 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService{
     private static final String TAG = "MyFirebaseIIDService";
     private static final String ONE_DAY_ENGAGE_TOPIC = "one_day_engage";
 
-    /**
-     * The Application's current Instance ID token is no longer valid and thus a new one must be requested.
-     */
     public void onTokenRefresh() {
 
         String token = FirebaseInstanceId.getInstance().getToken();
