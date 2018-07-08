@@ -29,8 +29,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.android.gms.appinvite.AppInvite;
-import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -119,7 +117,6 @@ public class MainActivity extends AppCompatActivity
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this , this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .addApi(AppInvite.API)
                 .build();
 
 
@@ -319,8 +316,6 @@ public class MainActivity extends AppCompatActivity
                 payload.putString(FirebaseAnalytics.Param.VALUE, "sent");
                 mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE,
                         payload);
-                String[] ids = AppInviteInvitation.getInvitationIds(resultCode, data);
-                Log.d(TAG, "Invitations sent: " + ids.length);
             } else {
                 Bundle payload = new Bundle();
                 payload.putString(FirebaseAnalytics.Param.VALUE, "not sent");
@@ -362,9 +357,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.invite_menu:
-                sendInvitation();
-                return true;
             case R.id.License:
                 License();
                 return true;
@@ -429,15 +421,6 @@ public class MainActivity extends AppCompatActivity
         final DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         final Date date = new Date(System.currentTimeMillis());
         return df.format(date);
-    }
-
-
-    private void sendInvitation() {
-        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
-                .setMessage(getString(R.string.invitation_message))
-                .setCallToActionText(getString(R.string.invitation_cta))
-                .build();
-        startActivityForResult(intent, REQUEST_INVITE);
     }
 
 }
